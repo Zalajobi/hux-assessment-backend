@@ -5,7 +5,12 @@ export const SearchContactsRequestSchema = bearerTokenSchema.extend({
   query: z.string().optional(),
   id: z.string().optional(),
   userId: z.string().optional(),
-  label: z.enum(['MOBILE', 'WORK', 'HOME', 'MAIN', 'WORK_FAX', 'HOME_FAX', 'PAGER', 'OTHERS']).optional(),
+  label: z.enum(['ALL', 'MOBILE', 'WORK', 'HOME', 'MAIN', 'WORK_FAX', 'HOME_FAX', 'PAGER', 'OTHERS']).default('ALL').transform((value) => {
+    if (value === 'ALL') {
+      return undefined;
+    }
+    return value;
+  }),
   sortModel: SortModelSchema.default({
     sort: 'desc',
     colId: 'created_at',

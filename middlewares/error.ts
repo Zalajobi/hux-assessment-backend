@@ -149,14 +149,14 @@ export const errorMiddleware = async (
   if (err instanceof Error) {
     console.log('General Error');
     console.log(err);
-    res.status(500).json({
-      error: {
-        type: 'api_error',
-        message: err.message,
-        name: err.name,
-        // errors: err,
-      },
-    });
+    JsonApiResponse(
+      res,
+      err.message,
+      false,
+      null,
+      500,
+      err
+    )
     return;
   }
 };

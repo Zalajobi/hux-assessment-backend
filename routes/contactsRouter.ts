@@ -16,8 +16,11 @@ contactsRouter.post('/search', async (req:Request, res:Response, next:NextFuncti
     const decryptedData = verifyJSONToken(requestBody?.authorization ?? '');
     requestBody.userId = decryptedData?.id;
 
-    const contactsData = await getSearchContactsData(requestBody);
-    return JsonApiResponse(res, "Success", true, contactsData, 200)
+    const [contactsData, totalRows] = await getSearchContactsData(requestBody);
+    return JsonApiResponse(res, "Success", true, {
+      contacts: contactsData,
+      totalRows
+    }, 200)
   } catch (error) {
     next(error)
   }
