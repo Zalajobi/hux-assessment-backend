@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": ["es6"],
+
+    /* Modules */
+    "module": "commonjs",
+    "rootDir": "",
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@datastore/*": ["./datastore/*"],
+      "@lib/*": ["./lib/*"],
+      "@middlewares/*": ["./middlewares/*"],
+      "@routes/*": ["./routes/*"],
+      "@schemas/*": ["./schemas/*"],
+      "@typeorm/*": ["./typeorm/*"],
+      "@util/*": ["./util/*"]
+    },
+
+    /* JavaScript Support */
+    "allowJs": true,
+
+    /* Emit */
+    "outDir": "build",
+
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictPropertyInitialization": false,
+
+    /* Completeness */
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  }
+}
