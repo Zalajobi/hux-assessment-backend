@@ -11,4 +11,6 @@ export const DB_USERNAME = process.env.DATABASE_USERNAME!;
 
 export const DB_HOST = process.env.DATABASE_HOST!;
 
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
+
 export const DB_PORT = process.env.DATABASE_PORT!;

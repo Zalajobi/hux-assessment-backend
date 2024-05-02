@@ -26,3 +26,27 @@ export const createNewUser = async (userData: z.infer<typeof createUserRequestSc
 
   return DefaultJsonResponse('User Created Successfully', null, true)
 }
+
+export const getUserDataByEmail = async (email:string):Promise<User | null> => {
+  const userRepository = userRepo();
+
+  const user = await userRepository.findOne({
+    where: [
+      {
+        email
+      },
+    ],
+
+    select: {
+      email: true,
+      id: true,
+      password: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User with email not found")
+  }
+
+  return user;
+}
