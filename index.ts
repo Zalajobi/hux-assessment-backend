@@ -8,12 +8,14 @@ import {userRepo} from "@typeorm/repository";
 import {User} from "@typeorm/entity/user";
 import {generatePasswordHash} from "@util/index";
 import router from "@routes/index";
+import {errorMiddleware} from "@middlewares/error";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 app.use('/', router)
+app.use(errorMiddleware);
 
 AppDataSource.initialize()
   .then(async () => {

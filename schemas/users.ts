@@ -5,5 +5,5 @@ export const createUserRequestSchema = z.object({
   password: z.string().min(8),
   name: z.string(),
 }).refine((data) => {
-  return !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data.email);
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data.email);
 });
