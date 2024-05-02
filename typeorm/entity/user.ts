@@ -5,9 +5,17 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import {Contacts} from "@typeorm/entity/contacts";
+import {createUserRequestSchema} from "@schemas/users";
+import {z} from "zod";
 
 @Entity()
 export class User {
+  constructor(userData: z.infer<typeof createUserRequestSchema>) {
+    this.name = userData?.name;
+    this.email = userData?.email;
+    this.password = userData?.password;
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

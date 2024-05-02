@@ -21,7 +21,7 @@ export const JsonApiResponse = (
 export const DefaultJsonResponse = (
   message: string,
   data: any,
-  success?: boolean
+  success: boolean
 ) => {
   return {
     message,
