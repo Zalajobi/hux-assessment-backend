@@ -7,3 +7,8 @@ export const bearerTokenSchema = z.object({
     message: "Authorization header must start with 'Bearer '",
   }).transform((data) => data.replace('Bearer ', '')),
 });
+
+export const SortModelSchema = z.object({
+  sort: z.enum(['asc', 'desc']),
+  colId: z.string(),
+});

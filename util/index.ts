@@ -51,3 +51,13 @@ export const verifyJSONToken = (bearerToken: string):JWTDataProps | null => {
 
   return jwtData;
 };
+
+export const extractPerPageAndPage = (endRow: number, startRow = 10) => {
+  const perPage = endRow - startRow;
+  const page = Math.ceil(startRow / perPage);
+
+  return {
+    page,
+    perPage,
+  };
+};

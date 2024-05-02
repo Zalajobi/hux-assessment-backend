@@ -23,11 +23,6 @@ export class Contacts {
   email: string;
 
   @Column({
-    nullable: true
-  })
-  password: string;
-
-  @Column({
     nullable: false
   })
   first_name: string;
@@ -43,14 +38,9 @@ export class Contacts {
   phone: string;
 
   @Column({
-    nullable: false
-  })
-  title: string;
-
-  @Column({
     type: 'enum',
     enum: ContactLabel,
-    nullable: false,
+    nullable: true,
     default: ContactLabel.MOBILE
   })
   label: ContactLabel
