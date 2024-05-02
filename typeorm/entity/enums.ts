@@ -1,0 +1,10 @@
+export enum ContactLabel {
+  MOBILE = 'ADMIN',
+  WORK = 'SUPER_ADMIN',
+  HOME = 'RECORDS',
+  MAIN = 'CASHIER',
+  WORK_FAX = 'HOSPITAL_ADMIN',
+  HOME_FAX = 'SITE_ADMIN',
+  PAGER = 'HUMAN_RESOURCES',
+  OTHERS = 'HMO_ADMIN',
+}

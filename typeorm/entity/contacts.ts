@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import {User} from "@typeorm/entity/user";
+import {ContactLabel} from "@typeorm/entity/enums";
 
 @Entity()
 export class Contacts {
@@ -12,20 +13,47 @@ export class Contacts {
   id: string;
 
   @Column({
-    unique: true,
-    nullable: false,
+    nullable: false
+  })
+  userId: string;
+
+  @Column({
+    nullable: true
   })
   email: string;
 
   @Column({
-    nullable: false,
+    nullable: true
   })
   password: string;
 
   @Column({
-    nullable: false,
+    nullable: false
   })
-  name: string;
+  first_name: string;
+
+  @Column({
+    nullable: false
+  })
+  last_name: string;
+
+  @Column({
+    nullable: false
+  })
+  phone: string;
+
+  @Column({
+    nullable: false
+  })
+  title: string;
+
+  @Column({
+    type: 'enum',
+    enum: ContactLabel,
+    nullable: false,
+    default: ContactLabel.MOBILE
+  })
+  label: ContactLabel
 
   @CreateDateColumn()
   created_at: Date;
