@@ -1,7 +1,6 @@
 import {z} from "zod";
-import {createUserRequestSchema} from "@schemas/users";
+import {createUserRequestSchema} from "@schemas/usersSchemas";
 import {userRepo} from "@typeorm/repository";
-import * as console from "console";
 import {User} from "@typeorm/entity/user";
 import {DefaultJsonResponse} from "@util/responses";
 
@@ -49,4 +48,29 @@ export const getUserDataByEmail = async (email:string):Promise<User | null> => {
   }
 
   return user;
+}
+
+export const getUserDataById = async (id:string):Promise<User> => {
+  const userRepository = userRepo();
+
+  const user = await userRepository.findOne({
+    where: [
+      {
+        id
+      },
+    ],
+
+    select: {
+      email: true,
+      id: true,
+      name: true,
+      created_at: true
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  return user!;
 }

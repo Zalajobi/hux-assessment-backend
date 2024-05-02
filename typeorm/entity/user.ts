@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import {Contacts} from "@typeorm/entity/contacts";
-import {createUserRequestSchema} from "@schemas/users";
+import {createUserRequestSchema} from "@schemas/usersSchemas";
 import {z} from "zod";
 
 @Entity()
