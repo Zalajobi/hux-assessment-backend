@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import {bearerTokenSchema} from "@schemas/commonSchemas";
 
 export const createUserRequestSchema = z.object({
   email: z.string(),

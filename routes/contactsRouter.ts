@@ -2,7 +2,7 @@ import {NextFunction, Request, Response, Router} from 'express';
 import {GetContactDetailsRequestSchema, SearchContactsRequestSchema} from "@schemas/contactsSchemas";
 import {JsonApiResponse} from "@util/responses";
 import {verifyJSONToken} from "@util/index";
-import {getContactById, getSearchContactsData} from "@datastore/contactStore";
+import {deleteContactById, getContactById, getSearchContactsData} from "@datastore/contactStore";
 
 const contactsRouter = Router();
 
@@ -41,6 +41,21 @@ contactsRouter.get('/details/:id', async (req:Request, res:Response, next:NextFu
     next(error)
   }
 })
+
+contactsRouter.delete('/delete/:id', async (req:Request, res:Response, next:NextFunction) => {
+  try {
+    const requestBody = GetContactDetailsRequestSchema.parse({
+      ...req.headers,
+      ...req.params
+    })
+
+    const contact = await deleteContactById(requestBody.id);
+
+    return JsonApiResponse(res, "Contact Deleted Successfully", true, contact, 200)
+  } catch (error) {
+    next(error)
+  }
+});
 
 
 

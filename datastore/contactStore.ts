@@ -50,3 +50,11 @@ export const getContactById = async (id: string):Promise<Contacts | null> => {
     }
   });
 }
+
+export const deleteContactById = async (id: string) => {
+  const contactRepository = contactRepo();
+
+  return await contactRepository.delete({
+    id
+  });
+}

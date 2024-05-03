@@ -26,11 +26,13 @@ userRouter.post('/create', async (req:Request, res:Response, next:NextFunction) 
 
 userRouter.post('/login', async (req:Request, res:Response, next:NextFunction) => {
   let jwtSignedData = '';
+  console.log("Login Request", req.body)
 
   try {
     const requestBody = LoginRequestSchema.parse(req.body);
 
     const userAccount = await getUserDataByEmail(requestBody.email);
+    console.log(userAccount);
 
     if (validatePassword(requestBody.password, userAccount?.password ?? '')) {
       const jwtData:JWTPayload = {
@@ -38,8 +40,10 @@ userRouter.post('/login', async (req:Request, res:Response, next:NextFunction) =
         email: userAccount?.email ?? '',
       };
 
+      // If rememeber be is clicked, token expires in 7 days, else 6hrs
       jwtSignedData = generateJSONTokenCredentials(
         jwtData,
+        requestBody?.rememberMe ? Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 : Math.floor(Date.now() / 1000) + 60 //Math.floor(Date.now() / 1000) + 60 * 360
       );
     }
 

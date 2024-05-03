@@ -10,23 +10,26 @@ export const authorizeRequest = (req: Request, res: Response, next: NextFunction
     'user/create',
   ];
 
-  const { authorization } = bearerTokenSchema.parse(req.headers);
-  const verifiedUser = verifyJSONToken(authorization);
 
   if (whitelistedEndpoints.some((whitelist) => req.url.includes(whitelist))) {
     next();
     return;
-  } else if (!verifiedUser) {
-    JsonApiResponse(
-      res,
-      'Not Authorized',
-      false,
-      null,
-      401,
-    )
-    return;
   } else {
-    next();
-    return;
+    const { authorization } = bearerTokenSchema.parse(req.headers);
+    const verifiedUser = verifyJSONToken(authorization);
+
+    if (!verifiedUser) {
+      JsonApiResponse(
+        res,
+        'Not Authorized',
+        false,
+        null,
+        401,
+      )
+      return;
+    } else {
+      next();
+      return;
+    }
   }
 };
