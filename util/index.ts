@@ -1,11 +1,11 @@
 import crypto = require('crypto');
-import {JWT_SECRET_KEY, PASSWORD_HASH_SECRET} from "@lib/config";
+import { JWT_SECRET_KEY, PASSWORD_HASH_SECRET } from '@lib/config';
 import jwt = require('jsonwebtoken');
 
 type JWTDataProps = {
-  id: string,
-  email:string
-}
+  id: string;
+  email: string;
+};
 
 export const generatePasswordHash = (password: string) => {
   return crypto
@@ -22,7 +22,7 @@ export const validatePassword = (
     .toString('hex');
 
   if (!(generatedPasswordHash === comparePassword))
-    throw new Error("Invalid Email or Password")
+    throw new Error('Invalid Email or Password');
 
   return generatedPasswordHash === comparePassword;
 };
@@ -40,8 +40,8 @@ export const generateJSONTokenCredentials = (
   );
 };
 
-export const verifyJSONToken = (bearerToken: string):JWTDataProps | null => {
-  let jwtData:JWTDataProps | null = null;
+export const verifyJSONToken = (bearerToken: string): JWTDataProps | null => {
+  let jwtData: JWTDataProps | null = null;
 
   jwt.verify(bearerToken, JWT_SECRET_KEY, (err: any, user: any) => {
     if (err) throw err;

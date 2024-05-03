@@ -1,12 +1,13 @@
 import {
   Column,
   CreateDateColumn,
-  Entity, OneToMany,
+  Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import {Contacts} from "@typeorm/entity/contacts";
-import {createUserRequestSchema} from "@schemas/usersSchemas";
-import {z} from "zod";
+import { Contacts } from '@typeorm/entity/contacts';
+import { createUserRequestSchema } from '@schemas/usersSchemas';
+import { z } from 'zod';
 
 @Entity()
 export class User {
@@ -40,7 +41,7 @@ export class User {
 
   // Relations
   @OneToMany((type) => Contacts, (contact) => contact.user, {
-    onDelete: "CASCADE"
+    onDelete: 'CASCADE',
   })
   contacts: Contacts;
 }

@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import 'dotenv/config';
 export const BASE_URL = process.env.ACCOUNT_BASE_URL!;
 
 export const PASSWORD_HASH_SECRET = process.env.PASSWORD_HASH_SECRET!;
