@@ -3,6 +3,7 @@ import {z} from "zod";
 import {contactRepo} from "@typeorm/repository";
 import {extractPerPageAndPage} from "@util/index";
 import {Contacts} from "@typeorm/entity/contacts";
+import {DefaultJsonResponse} from "@util/responses";
 
 export const getSearchContactsData = async (requestBody: z.infer<typeof SearchContactsRequestSchema>) => {
   const contactRepository = contactRepo();
@@ -47,6 +48,15 @@ export const getContactById = async (id: string):Promise<Contacts | null> => {
   return await contactRepository.findOne({
     where: {
       id
+    },
+    select: {
+      id: true,
+      email: true,
+      first_name: true,
+      last_name: true,
+      phone: true,
+      label: true,
+      created_at: true
     }
   });
 }
@@ -57,4 +67,23 @@ export const deleteContactById = async (id: string) => {
   return await contactRepository.delete({
     id
   });
+}
+
+export const updateContactById = async (id:string, data: Object) => {
+  const contactRepository = contactRepo();
+
+  const updatedData = await contactRepository.update(
+    {
+    id
+  },
+    data
+  );
+
+  return DefaultJsonResponse(
+    Number(updatedData?.affected) >= 1
+      ? 'Contact Successfully Updated'
+      : 'Something Went Wrong',
+    null,
+    Number(updatedData?.affected) >= 1
+  );
 }

@@ -25,3 +25,12 @@ export const SearchContactsRequestSchema = bearerTokenSchema.extend({
 export const GetContactDetailsRequestSchema = bearerTokenSchema.extend({
   id: z.string(),
 });
+
+export const UpdateContactRequestSchema = bearerTokenSchema.extend({
+  id: z.string(),
+  email: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  phone: z.string().optional(),
+  label: z.enum(['MOBILE', 'WORK', 'HOME', 'MAIN', 'WORK_FAX', 'HOME_FAX', 'PAGER', 'OTHERS']).optional(),
+})

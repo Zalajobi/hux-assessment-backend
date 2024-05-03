@@ -1,8 +1,12 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import {GetContactDetailsRequestSchema, SearchContactsRequestSchema} from "@schemas/contactsSchemas";
+import {
+  GetContactDetailsRequestSchema,
+  SearchContactsRequestSchema,
+  UpdateContactRequestSchema
+} from "@schemas/contactsSchemas";
 import {JsonApiResponse} from "@util/responses";
 import {verifyJSONToken} from "@util/index";
-import {deleteContactById, getContactById, getSearchContactsData} from "@datastore/contactStore";
+import {deleteContactById, getContactById, getSearchContactsData, updateContactById} from "@datastore/contactStore";
 
 const contactsRouter = Router();
 
@@ -57,6 +61,21 @@ contactsRouter.delete('/delete/:id', async (req:Request, res:Response, next:Next
   }
 });
 
+contactsRouter.put('/update', async (req:Request, res:Response, next: NextFunction) => {
+  try {
+    const requestBody = UpdateContactRequestSchema.parse({
+      ...req.headers,
+      ...req.body
+    })
+    const { authorization, ...updateBody } = requestBody;
+
+    const updateContact = await updateContactById(updateBody.id, updateBody);
+
+    return JsonApiResponse(res, updateContact.message, updateContact.success, null, 200)
+  } catch (error) {
+    next(error)
+  }
+});
 
 
 export default contactsRouter;

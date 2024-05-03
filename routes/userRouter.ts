@@ -32,7 +32,6 @@ userRouter.post('/login', async (req:Request, res:Response, next:NextFunction) =
     const requestBody = LoginRequestSchema.parse(req.body);
 
     const userAccount = await getUserDataByEmail(requestBody.email);
-    console.log(userAccount);
 
     if (validatePassword(requestBody.password, userAccount?.password ?? '')) {
       const jwtData:JWTPayload = {
