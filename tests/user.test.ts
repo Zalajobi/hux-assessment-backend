@@ -34,11 +34,6 @@ userRouter.post('/create', async (req: Request, res: Response, next: NextFunctio
     requestBody.password = generatePasswordHash(requestBody.password);
     const newUser = await createNewUser(requestBody);
 
-    console.log({
-      message: newUser.message,
-      success: newUser.success
-    })
-
     return JsonApiResponse(res, newUser.message, newUser.success, null, newUser.success ? 201 : 500);
   } catch (error) {
     next(error)
