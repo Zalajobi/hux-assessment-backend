@@ -148,7 +148,6 @@ export const errorMiddleware = async (
   // Generic Error
   if (err instanceof Error) {
     console.log('General Error');
-    console.log(err);
     JsonApiResponse(
       res,
       err.message,

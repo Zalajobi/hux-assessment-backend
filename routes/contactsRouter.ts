@@ -1,12 +1,19 @@
 import {NextFunction, Request, Response, Router} from 'express';
 import {
+  createContactRequestSchema,
   GetContactDetailsRequestSchema,
   SearchContactsRequestSchema,
   UpdateContactRequestSchema
 } from "@schemas/contactsSchemas";
 import {JsonApiResponse} from "@util/responses";
 import {verifyJSONToken} from "@util/index";
-import {deleteContactById, getContactById, getSearchContactsData, updateContactById} from "@datastore/contactStore";
+import {
+  createContact,
+  deleteContactById,
+  getContactById,
+  getSearchContactsData,
+  updateContactById
+} from "@datastore/contactStore";
 
 const contactsRouter = Router();
 
@@ -31,6 +38,7 @@ contactsRouter.post('/search', async (req:Request, res:Response, next:NextFuncti
   }
 });
 
+// Get contact Details
 contactsRouter.get('/details/:id', async (req:Request, res:Response, next:NextFunction) => {
   try {
     const requestBody = GetContactDetailsRequestSchema.parse({
@@ -46,6 +54,7 @@ contactsRouter.get('/details/:id', async (req:Request, res:Response, next:NextFu
   }
 })
 
+// Delete Contact
 contactsRouter.delete('/delete/:id', async (req:Request, res:Response, next:NextFunction) => {
   try {
     const requestBody = GetContactDetailsRequestSchema.parse({
@@ -61,6 +70,7 @@ contactsRouter.delete('/delete/:id', async (req:Request, res:Response, next:Next
   }
 });
 
+// Update Contact
 contactsRouter.put('/update', async (req:Request, res:Response, next: NextFunction) => {
   try {
     const requestBody = UpdateContactRequestSchema.parse({
@@ -76,6 +86,24 @@ contactsRouter.put('/update', async (req:Request, res:Response, next: NextFuncti
     next(error)
   }
 });
+
+contactsRouter.post('/create', async (req:Request, res:Response, next:NextFunction) => {
+  try {
+    const requestBody = createContactRequestSchema.parse({
+      ...req.headers,
+      ...req.body
+    })
+
+    const decryptedData = verifyJSONToken(requestBody.authorization);
+    requestBody.userId = decryptedData?.id;
+
+    const contact = await createContact(requestBody);
+
+    return JsonApiResponse(res, contact.message, contact.success, null, 200)
+  } catch (error) {
+    next(error)
+  }
+})
 
 
 export default contactsRouter;

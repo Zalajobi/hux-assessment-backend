@@ -6,9 +6,20 @@ import {
 } from 'typeorm';
 import {User} from "@typeorm/entity/user";
 import {ContactLabel} from "@typeorm/entity/enums";
+import {createContactRequestSchema} from "@schemas/contactsSchemas";
+import {z} from "zod";
 
 @Entity()
 export class Contacts {
+  constructor(data: z.infer<typeof createContactRequestSchema>) {
+    this.first_name = data?.first_name;
+    this.last_name = data?.last_name;
+    this.phone = data?.phone;
+    this.userId = data?.userId ?? '';
+    this.label = <ContactLabel>data?.label ?? ContactLabel.MOBILE;
+    this.email = data?.email ?? '';
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

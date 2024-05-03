@@ -34,3 +34,12 @@ export const UpdateContactRequestSchema = bearerTokenSchema.extend({
   phone: z.string().optional(),
   label: z.enum(['MOBILE', 'WORK', 'HOME', 'MAIN', 'WORK_FAX', 'HOME_FAX', 'PAGER', 'OTHERS']).optional(),
 })
+
+export const createContactRequestSchema = bearerTokenSchema.extend({
+  email: z.string().optional(),
+  first_name: z.string().min(1).max(255),
+  last_name: z.string().min(1).max(255),
+  phone: z.string().min(1).max(255),
+  label: z.enum(['MOBILE', 'WORK', 'HOME', 'MAIN', 'WORK_FAX', 'HOME_FAX', 'PAGER', 'OTHERS']).optional(),
+  userId: z.string().optional(),
+});

@@ -1,4 +1,4 @@
-import {SearchContactsRequestSchema} from "@schemas/contactsSchemas";
+import {createContactRequestSchema, SearchContactsRequestSchema} from "@schemas/contactsSchemas";
 import {z} from "zod";
 import {contactRepo} from "@typeorm/repository";
 import {extractPerPageAndPage} from "@util/index";
@@ -85,5 +85,17 @@ export const updateContactById = async (id:string, data: Object) => {
       : 'Something Went Wrong',
     null,
     Number(updatedData?.affected) >= 1
+  );
+}
+
+export const createContact = async (data: z.infer<typeof createContactRequestSchema>) => {
+  const contactRepository = contactRepo();
+
+  const createdContact = await contactRepository.save(new Contacts(data));
+
+  return DefaultJsonResponse(
+    createdContact ? 'Contact Successfully Created' : 'Something Went Wrong',
+    null,
+    Boolean(createdContact)
   );
 }

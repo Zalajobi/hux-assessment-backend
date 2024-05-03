@@ -26,8 +26,6 @@ userRouter.post('/create', async (req:Request, res:Response, next:NextFunction) 
 
 userRouter.post('/login', async (req:Request, res:Response, next:NextFunction) => {
   let jwtSignedData = '';
-  console.log("Login Request", req.body)
-
   try {
     const requestBody = LoginRequestSchema.parse(req.body);
 
