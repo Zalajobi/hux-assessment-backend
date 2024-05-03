@@ -5,11 +5,18 @@ import {LoginRequestSchema, createUserRequestSchema } from '@schemas/usersSchema
 import {generateJSONTokenCredentials, generatePasswordHash, validatePassword, verifyJSONToken} from "@util/index";
 import {createNewUser, getUserDataByEmail} from "@datastore/userStore";
 import {JsonApiResponse} from "@util/responses";
-import {createContactRequestSchema} from "@schemas/contactsSchemas";
-import {createContact} from "@datastore/contactStore";
+import {createContactRequestSchema, UpdateContactRequestSchema} from "@schemas/contactsSchemas";
+import {createContact, updateContactById} from "@datastore/contactStore";
+import {contactRepo} from "@typeorm/repository";
 
 jest.mock('@util/responses', () => ({
   JsonApiResponse: jest.fn()
+}));
+
+jest.mock('@typeorm/repository', () => ({
+  contactRepo: () => ({
+    update: jest.fn().mockResolvedValue({ affected: 1 })
+  })
 }));
 
 jest.mock('@datastore/userStore', () => ({
@@ -25,6 +32,10 @@ jest.mock('@datastore/userStore', () => ({
 
 jest.mock('@datastore/contactStore', () => ({
   createContact: jest.fn().mockResolvedValue({
+    message: 'Contact Successfully Created',
+    success: true
+  }),
+  updateContactById: jest.fn().mockResolvedValue({
     message: 'Contact Successfully Created',
     success: true
   }),
@@ -51,13 +62,16 @@ jest.mock('@schemas/contactsSchemas', () => ({
   createContactRequestSchema: {
     parse: jest.fn()
   },
+  UpdateContactRequestSchema: {
+    parse: jest.fn()
+  },
 }));
 
 
-const userRouter = Router();
+const router = Router();
 
 // Create User
-userRouter.post('/create', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const requestBody = createUserRequestSchema.parse(req.body);
     requestBody.password = generatePasswordHash(requestBody.password);
@@ -70,7 +84,7 @@ userRouter.post('/create', async (req: Request, res: Response, next: NextFunctio
 })
 
 // Login
-userRouter.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
   let jwtSignedData = '';
 
   try {
@@ -83,7 +97,6 @@ userRouter.post('/login', async (req: Request, res: Response, next: NextFunction
 
     const requestBody = LoginRequestSchema.parse(req.body);
     const userAccount = await getUserDataByEmail(requestBody.email);
-    console.log({userAccount})
 
     if (validatePassword(requestBody.password, userAccount?.password ?? '')) {
       const jwtData = {
@@ -100,7 +113,7 @@ userRouter.post('/login', async (req: Request, res: Response, next: NextFunction
   }
 })
 
-userRouter.post('/contacts/create', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/contacts/create', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const requestBody = createContactRequestSchema.parse(req.body);
     const decryptedData = verifyJSONToken(requestBody.authorization);
@@ -114,9 +127,22 @@ userRouter.post('/contacts/create', async (req: Request, res: Response, next: Ne
   }
 })
 
+router.put('/contacts/update', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const requestBody = UpdateContactRequestSchema.parse(req.body);
+    const { authorization, ...updateBody } = requestBody;
+
+    const updateContact = await updateContactById(updateBody.id, updateBody);
+
+    return JsonApiResponse(res, 'Contact Successfully Updated', !!updateContact, null, 200);
+  } catch (error) {
+    next(error);
+  }
+})
+
 const app = express();
 app.use(bodyParser.json());
-app.use(userRouter);
+app.use(router);
 
 // Create User Test
 describe('POST /create', () => {
@@ -190,13 +216,14 @@ describe('POST /login', () => {
 // Create Contact
 describe('POST /contacts/create', () => {
   const mockContact = {
-    name: 'John Doe',
+    first_name: 'John',
+    last_name: 'Doe',
     email: 'john.doe@example.com',
     phone: '123-456-7890',
     userId: 'user123'
   };
 
-  it('should create a contact successfully and return 200', async () => {
+  it('should create a contact successfully and return 201', async () => {
     // Setup mocks
     (createContactRequestSchema.parse as jest.Mock).mockReturnValue({
       ...mockContact,
@@ -237,5 +264,80 @@ describe('POST /contacts/create', () => {
       .send(mockContact);
 
     expect(response.status).toBe(500);
+  });
+});
+
+// Update Contact Details
+describe('PUT /contacts/update', () => {
+  const mockContact = {
+    first_name: 'John',
+    last_name: 'Doe',
+    email: 'john.doe@example.com',
+    phone: '123-456-7890',
+    userId: 'user123'
+  };
+
+  it('should create a contact successfully and return 201', async () => {
+    // Setup mocks
+    (createContactRequestSchema.parse as jest.Mock).mockReturnValue({
+      ...mockContact,
+      authorization: 'Bearer token123'
+    });
+    (verifyJSONToken as jest.Mock).mockReturnValue({ id: 'user123' });
+    (createContact as jest.Mock).mockResolvedValue({
+      message: 'Contact created successfully',
+      success: true
+    });
+
+    const response = await request(app)
+      .post('/contacts/create')
+      .send(mockContact)
+      .set('Authorization', 'Bearer token123');
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({
+      message: 'Contact created successfully',
+      success: true
+    });
+
+    expect(verifyJSONToken).toHaveBeenCalledWith('Bearer token123');
+    expect(createContact).toHaveBeenCalledWith(expect.objectContaining({
+      ...mockContact,
+      userId: 'user123'
+    }));
+  });
+
+  it('should update contact', async () => {
+    // Setup mocks
+    (UpdateContactRequestSchema.parse as jest.Mock).mockReturnValue({
+      ...mockContact,
+      authorization: 'Bearer token123'
+    });
+
+    (verifyJSONToken as jest.Mock).mockReturnValue({ id: 'user123' });
+    (createContact as jest.Mock).mockResolvedValue({
+      message: 'Contact created successfully',
+      success: true
+    });
+
+    const response = await request(app)
+      .put('/contacts/update')
+      .send({
+        ...mockContact,
+        first_name: "Jane"
+      })
+      .set('Authorization', 'Bearer token123');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: 'Contact Successfully Updated',
+      success: true
+    });
+
+    expect(verifyJSONToken).toHaveBeenCalledWith('Bearer token123');
+    expect(createContact).toHaveBeenCalledWith(expect.objectContaining({
+      ...mockContact,
+      userId: 'user123'
+    }));
   });
 });
