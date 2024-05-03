@@ -99,3 +99,13 @@ export const createContact = async (data: z.infer<typeof createContactRequestSch
     Boolean(createdContact)
   );
 }
+
+export const getAllContactByUserId = async (userId: string):Promise<Contacts[] | null> => {
+  const contactRepository = contactRepo();
+
+  return await contactRepository.find({
+    where: {
+      userId
+    }
+  });
+}

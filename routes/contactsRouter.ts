@@ -9,11 +9,12 @@ import {JsonApiResponse} from "@util/responses";
 import {verifyJSONToken} from "@util/index";
 import {
   createContact,
-  deleteContactById,
+  deleteContactById, getAllContactByUserId,
   getContactById,
   getSearchContactsData,
   updateContactById
 } from "@datastore/contactStore";
+import {bearerTokenSchema} from "@schemas/commonSchemas";
 
 const contactsRouter = Router();
 
@@ -87,6 +88,7 @@ contactsRouter.put('/update', async (req:Request, res:Response, next: NextFuncti
   }
 });
 
+// Create Contact
 contactsRouter.post('/create', async (req:Request, res:Response, next:NextFunction) => {
   try {
     const requestBody = createContactRequestSchema.parse({
@@ -100,6 +102,21 @@ contactsRouter.post('/create', async (req:Request, res:Response, next:NextFuncti
     const contact = await createContact(requestBody);
 
     return JsonApiResponse(res, contact.message, contact.success, null, 200)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Get All contacts of a user
+contactsRouter.get('/all', async (req:Request, res:Response, next:NextFunction) => {
+  try {
+    const requestBody = bearerTokenSchema.parse(req.headers)
+
+    const decryptedData = verifyJSONToken(requestBody.authorization);
+
+    const contacts = await getAllContactByUserId(decryptedData?.id ?? '');
+
+    return JsonApiResponse(res, contacts ? "Success" : "Something went Wrong", !!contacts, contacts, 200)
   } catch (error) {
     next(error)
   }

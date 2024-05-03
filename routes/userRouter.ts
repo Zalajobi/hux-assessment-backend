@@ -40,7 +40,7 @@ userRouter.post('/login', async (req:Request, res:Response, next:NextFunction) =
       // If rememeber be is clicked, token expires in 7 days, else 6hrs
       jwtSignedData = generateJSONTokenCredentials(
         jwtData,
-        requestBody?.rememberMe ? Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 : Math.floor(Date.now() / 1000) + 60 //Math.floor(Date.now() / 1000) + 60 * 360
+        requestBody?.rememberMe ? Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 : Math.floor(Date.now() / 1000) + 60 * 360
       );
     }
 
