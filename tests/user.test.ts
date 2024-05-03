@@ -2,10 +2,11 @@ import express, {Request, Response, NextFunction, Router} from 'express';
 import request from 'supertest';
 import bodyParser from 'body-parser';
 import {LoginRequestSchema, createUserRequestSchema } from '@schemas/usersSchemas';
-import {generateJSONTokenCredentials, generatePasswordHash, validatePassword} from "@util/index";
+import {generateJSONTokenCredentials, generatePasswordHash, validatePassword, verifyJSONToken} from "@util/index";
 import {createNewUser, getUserDataByEmail} from "@datastore/userStore";
 import {JsonApiResponse} from "@util/responses";
-import * as console from "console";
+import {createContactRequestSchema} from "@schemas/contactsSchemas";
+import {createContact} from "@datastore/contactStore";
 
 jest.mock('@util/responses', () => ({
   JsonApiResponse: jest.fn()
@@ -22,10 +23,18 @@ jest.mock('@datastore/userStore', () => ({
   })
 }));
 
+jest.mock('@datastore/contactStore', () => ({
+  createContact: jest.fn().mockResolvedValue({
+    message: 'Contact Successfully Created',
+    success: true
+  }),
+}));
+
 jest.mock('@util/index', () => ({
   generatePasswordHash: jest.fn(),
   validatePassword: jest.fn(),
-  generateJSONTokenCredentials: jest.fn()
+  generateJSONTokenCredentials: jest.fn(),
+  verifyJSONToken: jest.fn()
 }));
 
 jest.mock('@schemas/usersSchemas', () => ({
@@ -36,6 +45,14 @@ jest.mock('@schemas/usersSchemas', () => ({
     parse: jest.fn()
   }
 }));
+
+
+jest.mock('@schemas/contactsSchemas', () => ({
+  createContactRequestSchema: {
+    parse: jest.fn()
+  },
+}));
+
 
 const userRouter = Router();
 
@@ -63,10 +80,10 @@ userRouter.post('/login', async (req: Request, res: Response, next: NextFunction
       password: 'Password123'
     };
     createUser.password = generatePasswordHash(createUser.password);
-    await createNewUser(createUser);
 
     const requestBody = LoginRequestSchema.parse(req.body);
     const userAccount = await getUserDataByEmail(requestBody.email);
+    console.log({userAccount})
 
     if (validatePassword(requestBody.password, userAccount?.password ?? '')) {
       const jwtData = {
@@ -83,6 +100,19 @@ userRouter.post('/login', async (req: Request, res: Response, next: NextFunction
   }
 })
 
+userRouter.post('/contacts/create', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const requestBody = createContactRequestSchema.parse(req.body);
+    const decryptedData = verifyJSONToken(requestBody.authorization);
+    requestBody.userId = decryptedData?.id;
+
+    const contact = await createContact(requestBody);
+
+    return JsonApiResponse(res, contact.message, contact.success, null, 201);
+  } catch (error) {
+    next(error)
+  }
+})
 
 const app = express();
 app.use(bodyParser.json());
@@ -129,7 +159,6 @@ describe('POST /login', () => {
       email: 'johnDoe@gmail.com',
       password: 'Password123'
     }
-
     const mockJtwToken = 'jwt_token';
 
     (LoginRequestSchema.parse as jest.Mock).mockImplementation((data: any) => data);
@@ -143,13 +172,70 @@ describe('POST /login', () => {
       .post('/login')
       .send({ email: mockUser.email, password: mockUser.password });
 
-    const body = response.body;
-
-    console.log({
-      body
-    })
-
     expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({ message: 'Login Successful', success: true });
+    expect(JsonApiResponse).toHaveBeenCalledWith(expect.anything(), "Login Successful", true, { token: mockJtwToken }, 200);
   })
+
+  it('should handle errors and forward to error handler', async () => {
+    const error = new Error('Database error');
+    (LoginRequestSchema.parse as jest.Mock).mockImplementation(() => {
+      throw error;
+    });
+
+    const response = await request(app).post('/login').send({ email: 'john@doe.com', password: 'password123' });
+    expect(response.status).toBe(500);
+  });
 })
+
+// Create Contact
+describe('POST /contacts/create', () => {
+  const mockContact = {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '123-456-7890',
+    userId: 'user123'
+  };
+
+  it('should create a contact successfully and return 200', async () => {
+    // Setup mocks
+    (createContactRequestSchema.parse as jest.Mock).mockReturnValue({
+      ...mockContact,
+      authorization: 'Bearer token123'
+    });
+    (verifyJSONToken as jest.Mock).mockReturnValue({ id: 'user123' });
+    (createContact as jest.Mock).mockResolvedValue({
+      message: 'Contact created successfully',
+      success: true
+    });
+
+    const response = await request(app)
+      .post('/contacts/create')
+      .send(mockContact)
+      .set('Authorization', 'Bearer token123');
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({
+      message: 'Contact created successfully',
+      success: true
+    });
+
+    expect(verifyJSONToken).toHaveBeenCalledWith('Bearer token123');
+    expect(createContact).toHaveBeenCalledWith(expect.objectContaining({
+      ...mockContact,
+      userId: 'user123'
+    }));
+  });
+
+  it('should handle errors and forward to error handler', async () => {
+    const error = new Error('Failed to create contact');
+    (createContactRequestSchema.parse as jest.Mock).mockImplementation(() => {
+      throw error;
+    });
+
+    const response = await request(app)
+      .post('/contacts/create')
+      .send(mockContact);
+
+    expect(response.status).toBe(500);
+  });
+});
