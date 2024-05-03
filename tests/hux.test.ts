@@ -208,13 +208,11 @@ describe('POST /create', () => {
       ) => res.status(statusCode).send({ message, success })
     );
 
-    const response = await request(app)
-      .post('/create')
-      .send({
-        name: 'John Doe',
-        password: 'Password123',
-        email: 'johnDoe@gmail.com',
-      });
+    const response = await request(app).post('/create').send({
+      name: 'John Doe',
+      password: 'Password123',
+      email: 'johnDoe@gmail.com',
+    });
 
     expect(response.statusCode).toBe(201);
     expect(response.body).toEqual({

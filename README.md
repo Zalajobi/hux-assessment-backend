@@ -9,22 +9,28 @@ These instructions will get your copy of the project up and running on your loca
 ### Prerequisites
 
 #### Node.js and npm
+
 Ensure you have the following installed:
+
 - Node.js (>= 14.x)
 - npm (>= 6.x)
 
 You can verify your Node and npm versions with:
+
 ```bash
 node --version
 npm --version
 ```
 
 #### PostgresSQL
+
 Ensure you have PostgresSQL installed on your local machine. You can download the installer from the [official website](https://www.postgresql.org/download/).
 create a database and user for the application.
 
 #### Environment Variables
+
 Create a `.env` file in the root directory of the project and add the following environment variables:
+
 ```bash
 PROJECT_PORT=3000
 ACCOUNT_BASE_URL=http://localhost:3000/api/v1 # Base URL for all request, this is a sample URL
@@ -38,14 +44,17 @@ JWT_SECRET_KEY="jwt secret"
 ```
 
 ### Installing
+
 - git clone https://github.com/Zalajobi/hux-assessment-backend.git
-- cd hux-assessment-backend 
+- cd hux-assessment-backend
 - npm install
 - npm run start:dev # To start the application in development mode
 - npm run start # To start the application in production mode
 
 ## Running the tests
+
 To run the tests, run the following command:
+
 ```bash
 npm run test
 ```
