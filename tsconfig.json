@@ -15,7 +15,8 @@
       "@routes/*": ["./routes/*"],
       "@schemas/*": ["./schemas/*"],
       "@typeorm/*": ["./typeorm/*"],
-      "@util/*": ["./util/*"]
+      "@util/*": ["./util/*"],
+      "*": ["types/*"]
     },
 
     /* JavaScript Support */
