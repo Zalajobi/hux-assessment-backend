@@ -33,7 +33,7 @@ Create a `.env` file in the root directory of the project and add the following 
 
 ```bash
 PROJECT_PORT=3000
-ACCOUNT_BASE_URL=http://localhost:3000/api/v1 # Base URL for all request, this is a sample URL
+ACCOUNT_BASE_URL='/api/v1/hux' # Base URL for all request, this is a sample URL
 DATABASE_NAME="database name"
 DATABASE_PASSWORD="database password"
 DATABASE_USERNAME="database username"
