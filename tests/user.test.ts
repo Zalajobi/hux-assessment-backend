@@ -143,6 +143,12 @@ describe('POST /login', () => {
       .post('/login')
       .send({ email: mockUser.email, password: mockUser.password });
 
+    const body = response.body;
+
+    console.log({
+      body
+    })
+
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({ message: 'Login Successful', success: true });
   })
