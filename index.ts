@@ -18,17 +18,7 @@ app.use(errorMiddleware);
 
 AppDataSource.initialize()
   .then(async () => {
-    console.log('Initialising TypeORM...');
-
-    // console.log('Generating Test User...');
-    // const user = new User();
-    // user.email = 'zalajobi@gmail.com';
-    // user.name = 'Zhikrullah IGBALAJOBI';
-    // user.password = generatePasswordHash('password123');
-    //
-    // await userRepo().save(user)
-    //
-    // console.log('Test User Generated Successfully');
+    console.log('DB Successfully Initalised');
   })
   .catch((error) => console.log(error));
 
