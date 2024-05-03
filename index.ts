@@ -4,16 +4,15 @@ import 'reflect-metadata';
 import express = require('express');
 import cors = require('cors');
 import { AppDataSource } from './data-source';
-import {userRepo} from "@typeorm/repository";
-import {User} from "@typeorm/entity/user";
-import {generatePasswordHash} from "@util/index";
 import router from "@routes/index";
 import {errorMiddleware} from "@middlewares/error";
+import {authorizeRequest} from "@middlewares/jwt";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use(authorizeRequest);
 app.use('/', router)
 app.use(errorMiddleware);
 

@@ -21,3 +21,7 @@ export const SearchContactsRequestSchema = bearerTokenSchema.extend({
   message: 'endRow must be greater than startRow',
   path: ['endRow'],
 });
+
+export const GetContactDetailsRequestSchema = bearerTokenSchema.extend({
+  id: z.string(),
+});

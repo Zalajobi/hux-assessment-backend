@@ -1,11 +1,12 @@
 import {NextFunction, Request, Response, Router} from 'express';
-import {SearchContactsRequestSchema} from "@schemas/contactsSchemas";
+import {GetContactDetailsRequestSchema, SearchContactsRequestSchema} from "@schemas/contactsSchemas";
 import {JsonApiResponse} from "@util/responses";
 import {verifyJSONToken} from "@util/index";
-import {getSearchContactsData} from "@datastore/contactStore";
+import {getContactById, getSearchContactsData} from "@datastore/contactStore";
 
 const contactsRouter = Router();
 
+// Contact Search
 contactsRouter.post('/search', async (req:Request, res:Response, next:NextFunction) => {
   try {
     const requestBody = SearchContactsRequestSchema.parse({
@@ -25,5 +26,22 @@ contactsRouter.post('/search', async (req:Request, res:Response, next:NextFuncti
     next(error)
   }
 });
+
+contactsRouter.get('/details/:id', async (req:Request, res:Response, next:NextFunction) => {
+  try {
+    const requestBody = GetContactDetailsRequestSchema.parse({
+      ...req.headers,
+      ...req.params
+    })
+
+    const contact = await getContactById(requestBody.id);
+
+    return JsonApiResponse(res, "Success", true, contact, 200)
+  } catch (error) {
+    next(error)
+  }
+})
+
+
 
 export default contactsRouter;
