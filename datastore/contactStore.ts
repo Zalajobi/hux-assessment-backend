@@ -1,19 +1,29 @@
-import {createContactRequestSchema, SearchContactsRequestSchema} from "@schemas/contactsSchemas";
-import {z} from "zod";
-import {contactRepo} from "@typeorm/repository";
-import {extractPerPageAndPage} from "@util/index";
-import {Contacts} from "@typeorm/entity/contacts";
-import {DefaultJsonResponse} from "@util/responses";
+import {
+  createContactRequestSchema,
+  SearchContactsRequestSchema,
+} from '@schemas/contactsSchemas';
+import { z } from 'zod';
+import { contactRepo } from '@typeorm/repository';
+import { extractPerPageAndPage } from '@util/index';
+import { Contacts } from '@typeorm/entity/contacts';
+import { DefaultJsonResponse } from '@util/responses';
 
-export const getSearchContactsData = async (requestBody: z.infer<typeof SearchContactsRequestSchema>) => {
+export const getSearchContactsData = async (
+  requestBody: z.infer<typeof SearchContactsRequestSchema>
+) => {
   const contactRepository = contactRepo();
 
-  const { page, perPage } = extractPerPageAndPage(requestBody.endRow, requestBody.startRow)
+  const { page, perPage } = extractPerPageAndPage(
+    requestBody.endRow,
+    requestBody.startRow
+  );
 
-  const contactsQuery = contactRepository.createQueryBuilder('contacts').orderBy({
-    [`${requestBody.sortModel.colId}`]:
-      requestBody.sortModel.sort === 'asc' ? 'ASC' : 'DESC',
-  });
+  const contactsQuery = contactRepository
+    .createQueryBuilder('contacts')
+    .orderBy({
+      [`${requestBody.sortModel.colId}`]:
+        requestBody.sortModel.sort === 'asc' ? 'ASC' : 'DESC',
+    });
 
   if (requestBody.query) {
     contactsQuery.orWhere('LOWER(contacts.phone) LIKE :query', {
@@ -40,14 +50,14 @@ export const getSearchContactsData = async (requestBody: z.infer<typeof SearchCo
     .skip(perPage * page)
     .take(perPage)
     .getManyAndCount();
-}
+};
 
-export const getContactById = async (id: string):Promise<Contacts | null> => {
+export const getContactById = async (id: string): Promise<Contacts | null> => {
   const contactRepository = contactRepo();
 
   return await contactRepository.findOne({
     where: {
-      id
+      id,
     },
     select: {
       id: true,
@@ -56,26 +66,26 @@ export const getContactById = async (id: string):Promise<Contacts | null> => {
       last_name: true,
       phone: true,
       label: true,
-      created_at: true
-    }
+      created_at: true,
+    },
   });
-}
+};
 
 export const deleteContactById = async (id: string) => {
   const contactRepository = contactRepo();
 
   return await contactRepository.delete({
-    id
+    id,
   });
-}
+};
 
-export const updateContactById = async (id:string, data: Object) => {
+export const updateContactById = async (id: string, data: Object) => {
   const contactRepository = contactRepo();
 
   const updatedData = await contactRepository.update(
     {
-    id
-  },
+      id,
+    },
     data
   );
 
@@ -86,9 +96,11 @@ export const updateContactById = async (id:string, data: Object) => {
     null,
     Number(updatedData?.affected) >= 1
   );
-}
+};
 
-export const createContact = async (data: z.infer<typeof createContactRequestSchema>) => {
+export const createContact = async (
+  data: z.infer<typeof createContactRequestSchema>
+) => {
   const contactRepository = contactRepo();
 
   const createdContact = await contactRepository.save(new Contacts(data));
@@ -98,14 +110,16 @@ export const createContact = async (data: z.infer<typeof createContactRequestSch
     null,
     Boolean(createdContact)
   );
-}
+};
 
-export const getAllContactByUserId = async (userId: string):Promise<Contacts[] | null> => {
+export const getAllContactByUserId = async (
+  userId: string
+): Promise<Contacts[] | null> => {
   const contactRepository = contactRepo();
 
   return await contactRepository.find({
     where: {
-      userId
-    }
+      userId,
+    },
   });
-}
+};

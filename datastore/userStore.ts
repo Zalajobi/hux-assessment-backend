@@ -1,10 +1,12 @@
-import {z} from "zod";
-import {createUserRequestSchema} from "@schemas/usersSchemas";
-import {userRepo} from "@typeorm/repository";
-import {User} from "@typeorm/entity/user";
-import {DefaultJsonResponse} from "@util/responses";
+import { z } from 'zod';
+import { createUserRequestSchema } from '@schemas/usersSchemas';
+import { userRepo } from '@typeorm/repository';
+import { User } from '@typeorm/entity/user';
+import { DefaultJsonResponse } from '@util/responses';
 
-export const createNewUser = async (userData: z.infer<typeof createUserRequestSchema>) => {
+export const createNewUser = async (
+  userData: z.infer<typeof createUserRequestSchema>
+) => {
   const userRepository = userRepo();
 
   const isUserUnique = await userRepository
@@ -12,27 +14,28 @@ export const createNewUser = async (userData: z.infer<typeof createUserRequestSc
     .where('LOWER(user.email) LIKE :email', {
       email: userData.email,
     })
-    .getCount()
+    .getCount();
 
   if (isUserUnique > 0) {
-    throw new Error('User with email already exists')
+    throw new Error('User with email already exists');
   }
 
-  const newUser = await userRepository.save(new User(userData))
+  const newUser = await userRepository.save(new User(userData));
 
-  if (!newUser)
-    throw new Error("Error Creating User")
+  if (!newUser) throw new Error('Error Creating User');
 
-  return DefaultJsonResponse('User Created Successfully', null, true)
-}
+  return DefaultJsonResponse('User Created Successfully', null, true);
+};
 
-export const getUserDataByEmail = async (email:string):Promise<User | null> => {
+export const getUserDataByEmail = async (
+  email: string
+): Promise<User | null> => {
   const userRepository = userRepo();
 
   const user = await userRepository.findOne({
     where: [
       {
-        email
+        email,
       },
     ],
 
@@ -44,19 +47,19 @@ export const getUserDataByEmail = async (email:string):Promise<User | null> => {
   });
 
   if (!user) {
-    throw new Error("User with email not found")
+    throw new Error('User with email not found');
   }
 
   return user;
-}
+};
 
-export const getUserDataById = async (id:string):Promise<User> => {
+export const getUserDataById = async (id: string): Promise<User> => {
   const userRepository = userRepo();
 
   const user = await userRepository.findOne({
     where: [
       {
-        id
+        id,
       },
     ],
 
@@ -64,13 +67,13 @@ export const getUserDataById = async (id:string):Promise<User> => {
       email: true,
       id: true,
       name: true,
-      created_at: true
+      created_at: true,
     },
   });
 
   if (!user) {
-    throw new Error("User not found")
+    throw new Error('User not found');
   }
 
   return user!;
-}
+};

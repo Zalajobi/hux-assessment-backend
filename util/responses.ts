@@ -13,7 +13,7 @@ export const JsonApiResponse = (
     message,
     success,
     data,
-    error
+    error,
   });
 };
 
